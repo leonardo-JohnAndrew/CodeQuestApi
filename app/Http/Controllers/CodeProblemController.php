@@ -32,28 +32,32 @@ class CodeProblemController extends Controller
     public function checkSolution(Request $request)
     {
         $request->validate([
-         //   'problem_id' => 'required|integer|exists:code_problems,id',
+            'problem_id' => 'required|integer|exists:code_problems,id',
             'code'       => 'required|string',
         ]);
 
         // Get problem from DB
-   //     $problem = CodeProblems::find($request->problem_id);
-      //  $expectedOutput = trim($problem->expected_output);
+        $problem = CodeProblems::find($request->problem_id);
+        $expectedOutput = trim($problem->expected_output);
         $userCode = trim($request->code);
 
-        // Run code via Piston
-        $response = Http::withOptions([
-            'verify' => false
-        ])->post("https://emkc.org/api/v2/piston/execute", [
+        // Ensure code is valid Java class format
+        // No modifications – Piston accepts multiline or inline
+        $pistonRequest = [
             'language' => 'java',
             'version'  => '15.0.2',
             'files' => [
                 [
+                    // THE FILE NAME MUST BE EXACTLY THIS:
                     'name'    => "Main.java",
                     'content' => $userCode
                 ]
             ]
-        ]);
+        ];
+
+        // Send request to Piston
+        $response = Http::withOptions(['verify' => false])
+            ->post("https://emkc.org/api/v2/piston/execute", $pistonRequest);
 
         if ($response->failed()) {
             return response()->json([
@@ -62,21 +66,23 @@ class CodeProblemController extends Controller
                 'message' => $response->json()['message'] ?? 'Unknown error',
             ], $response->status());
         }
-           return $response; 
-        // Extract output
-        $result   = $response->json();
+
+        $result = $response->json();
+
+        // Extract outputs
         $output   = trim($result['run']['output'] ?? '');
-        $stderr   = $result['run']['stderr'] ?? null;
+        $stderr   = trim($result['run']['stderr'] ?? '');
         $exitCode = $result['run']['code'] ?? null;
 
         return response()->json([
-       //     'correct'   => ($output === $expectedOutput),
+            'correct'   => ($output === $expectedOutput),
             'output'    => $output,
-       //     'expected'  => $expectedOutput,
+            'expected'  => $expectedOutput,
             'stderr'    => $stderr,
             'exit_code' => $exitCode
         ]);
     }
+
 
     // ---------------------------------------------------
     // CHECK CODE STRUCTURE USING JAVA ANALYZER
