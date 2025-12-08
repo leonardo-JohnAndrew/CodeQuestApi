@@ -15,7 +15,8 @@ Route::post('/code-problems', [CodeProblemController::class, "getProblems"]);
 Route::post('/enemies', [EnemiesController::class, "getEnemies"]);
 Route::post('/register', [AuthControlle::class , 'register']); 
 Route::post('/login' ,[AuthControlle::class , 'login']); 
-Route::get('/powerups',[InventoryController::class, 'getPowerups']); 
+Route::get('/powerups',[InventoryController::class, 'getPowerups']);
+Route::post('/send-mail', [AuthControlle::class, 'sendMailVerification']); 
 Route::middleware('auth:sanctum')->group(
     function () {
         Route::post("/facebook-login", [AuthControlle::class, "facebookLogin"]);
