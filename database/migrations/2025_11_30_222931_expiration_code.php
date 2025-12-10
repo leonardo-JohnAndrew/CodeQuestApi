@@ -12,13 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         //
-        Schema::create('verification_code', function (Blueprint $table) {
-            $table->id();
-           $table->string('email')->unique(); 
-           $table->string('password'); 
-           $table->string('username')->unique(); 
-           $table->timestamps(); 
-        });
+  
     }
 
     /**

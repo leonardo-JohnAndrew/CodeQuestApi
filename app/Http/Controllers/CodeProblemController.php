@@ -11,6 +11,14 @@ use Illuminate\Support\Facades\Http;
 
 class CodeProblemController extends Controller
 {
+
+    
+    // ---------------------------------------------------
+    // GET APPRORIATE ENEMY 
+    // ---------------------------------------------------
+    private function AnalyePlayerStatus(){
+        
+    }
     // ---------------------------------------------------
     // GET RANDOM PROBLEMS
     // ---------------------------------------------------

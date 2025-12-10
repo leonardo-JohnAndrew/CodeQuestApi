@@ -77,7 +77,7 @@ class AuthControlle extends Controller
                 'username' => 'required', 
                 'password' => ['required', new PasswordValidation('strong')], 
             ]);
-           
+        
             
         }catch (ValidationException $e){
           return response()->json([
