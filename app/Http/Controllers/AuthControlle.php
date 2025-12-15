@@ -54,7 +54,7 @@ class AuthControlle extends Controller
                 'code' => $code,
                 'expires_at' => $expire,
                 "created_at" => now(),
-                'password' => bcrypt($request->password),
+                'password' => $request->password,
                 "updated_at" => now()
             ]
         );
@@ -91,7 +91,7 @@ class AuthControlle extends Controller
             // 
             $user = User::where('email' , $request->email) 
             ->first(); 
-
+    
             if(!$user || !Hash:: check($request->password ,$user->password)){
                 return response()->json([
                    'message' => 'Provided Credential is incorrect'
@@ -104,7 +104,8 @@ class AuthControlle extends Controller
 
             return response()->json([
                  'user' => $user->username, 
-                  'access_token' => $token->plainTextToken
+                  'access_token' => $token->plainTextToken,
+                  'message' => "successLogin"
             ], 200); 
         } catch (\Throwable $th) {
             //throw $th;
