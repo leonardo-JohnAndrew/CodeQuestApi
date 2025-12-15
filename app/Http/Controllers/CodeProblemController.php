@@ -33,7 +33,12 @@ class CodeProblemController extends Controller
     {
         $request->validate([
             'problem_id' => 'required|integer|exists:code_problems,id',
-            'code'       => 'required|string',
+            'code' => ['required', 'string', function ($attr, $value, $fail) {
+                if (trim($value) === '') {
+                    $fail('Code cannot be empty.');
+                }
+            }],
+
         ]);
 
         // Get problem from DB

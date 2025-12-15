@@ -12,8 +12,9 @@ return new class extends Migration
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained(); // FK: Profile belongs to User
-            $table->string('level')->default('Beginner');
-            $table->text('avatar_url')->nullable();
+            $table->enum('level',['Beginner', 'Intermmediate'])->default('Beginner');
+          // $table->text('avatar_url')->nullable();
+             $table->string('character_name')->nullable(); 
             $table->timestamps();
         });
 
@@ -42,7 +43,7 @@ return new class extends Migration
         });
 
         // User weaknesses table
-        Schema::create('user_weaknesses', function (Blueprint $table) {
+        Schema::create('user_wrongattempts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->string('category');

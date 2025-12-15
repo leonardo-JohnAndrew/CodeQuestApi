@@ -3,78 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Mail\MailVerification;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use App\Rules\PasswordValidation;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Testing\Fluent\Concerns\Has;
-use League\Config\Exception\ValidationException;
+//use League\Config\Exception\ValidationException;
 use PhpParser\Error;
 use PhpParser\Node\Stmt\TryCatch;
 
 class AuthControlle extends Controller
 {
-    // Facebook login endpoint
-    // public function facebookLogin(Request $request)
-    // {
-    //     $token = $request->input('facebook_token');
+   
 
-    //     // Call Facebook Graph API
-    //     $fbResponse = Http::get('https://graph.facebook.com/me', [
-    //         'fields' => 'id,name,email',
-    //         'access_token' => $token
-    //     ]);
-
-    //     if ($fbResponse->failed()) {
-    //         return response()->json(['error' => 'Invalid Facebook token'], 401);
-    //     }
-
-    //     $fbUser = $fbResponse->json();
-
-    //     // Check if user exists or needs to be created
-    //     $user = User::where('facebook_id', $fbUser['id'])->first();
-
-    //     $isNew = false;
-
-    //     if (!$user) {
-    //         $user = User::create([
-    //             'facebook_id' => $fbUser['id'],
-    //             'username' => $fbUser['name'],
-    //             'email' => $fbUser['email'] ?? $fbUser['id'] . '@facebook.local',
-    //             'password' => bcrypt(Str::random(16))
-    //         ]);
-
-    //         $user->profile()->create([
-    //             'level' => 'Beginner',
-    //             'avatar_url' => null
-    //         ]);
-
-    //         $isNew = true;
-    //     }
-
-    //     // Create access token
-    //     $apiToken = $user->createToken('fb-login')->plainTextToken;
-
-    //     return response()->json([
-    //         'user' => $user,
-    //         'token' => $apiToken,
-    //         'is_new_user' => $isNew
-    //     ]);
-    // }
+     // protected stpass; 
       public function register(Request $request)
     {
 
         try{
 
             $request->validate([
-                'email' => 'required|email',
+                'email' => 'required|email|unique:users,email',
                 'username' => 'required', 
+                'character' => 'required', 
                 'password' => ['required', new PasswordValidation('strong')], 
             ]);
            
@@ -94,6 +54,7 @@ class AuthControlle extends Controller
                 'code' => $code,
                 'expires_at' => $expire,
                 "created_at" => now(),
+                'password' => bcrypt($request->password),
                 "updated_at" => now()
             ]
         );
@@ -122,7 +83,7 @@ class AuthControlle extends Controller
      // login 
     public function login(Request $request){
         $request->validate([
-            'email' => 'email', 
+            'email' => 'email|required', 
             'password' => 'required'
         ]); 
       
@@ -155,11 +116,15 @@ class AuthControlle extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'code' => 'required'
+            'code' => 'required|integer', 
+            'character' => 'required',
+            'username' => 'required', 
+           
         ]);
 
         $record = DB::table('verification_code')
             ->where('email', $request->email)
+            ->orderByDesc('id')
             ->first();
 
         if (!$record) {
@@ -174,18 +139,39 @@ class AuthControlle extends Controller
             return response()->json(['message' => 'Code not match'], 401);
         }
 
-      
-        // User::create([
-        //     'email' => $request->email,
-        //     'password' => bcrypt($request->password)
-        // ]);
-        DB::table('verification_code')->where('email', $request->email)->delete();
+      try {
+            //code...
 
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Account created'
+         $record = DB::table('verification_code')
+                ->where('email', $request->email)
+                ->orderByDesc('id')
+                ->first();
+         $user =   User::create([
+            'email' => $request->email,
+            'password' => bcrypt($record->password),
+            'username' => $request->username,
+            'email_verified_at' => now()
         ]);
+        if($user){
+            Profile::create([
+                  'user_id' =>  $user->id, 
+                  'level' => "Beginner", 
+                  'character_name' => $request->character, 
+
+            ]);
+                $token = $user->createToken('api-token')->plainTextToken;
+                DB::table('verification_code')->where('email', $request->email)->delete();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Account created',
+                    'token' => $token
+                ], 200);
+        }
+
+      } catch (\Throwable $th) {
+        //throw $th;
+        return response()->json($th); 
+      }
     }
 }
 
