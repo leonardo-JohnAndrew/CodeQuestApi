@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Rule;
 class PasswordValidation implements Rule
 {
     protected $level;
+    protected $errorMessage = '';
 
     public function __construct($level = 'strong')
     {
@@ -17,25 +18,61 @@ class PasswordValidation implements Rule
     {
         $length = strlen($value);
 
-        //≥ 6 characters
         if ($this->level === 'weak') {
-            return $length >= 6;
+            if ($length < 6) {
+                $this->errorMessage = 'Password must be at least 6 characters long.';
+                return false;
+            }
+            return true;
         }
 
-        //≥ 8 chars + letters + numbers
         if ($this->level === 'medium') {
-            return $length >= 8 &&
-                preg_match('/[A-Za-z]/', $value) &&
-                preg_match('/\d/', $value);
+            if ($length < 8) {
+                $this->errorMessage = 'Password must be at least 8 characters long.';
+                return false;
+            }
+
+            if (!preg_match('/[A-Za-z]/', $value)) {
+                $this->errorMessage = 'Password must contain at least one letter.';
+                return false;
+            }
+
+            if (!preg_match('/\d/', $value)) {
+                $this->errorMessage = 'Password must contain at least one number.';
+                return false;
+            }
+
+            return true;
         }
 
-        //≥ 10 chars + upper + lower + number + symbol
+        // STRONG
         if ($this->level === 'strong') {
-            return $length >= 10 &&
-                preg_match('/[A-Z]/', $value) &&
-                preg_match('/[a-z]/', $value) &&
-                preg_match('/\d/', $value) &&
-                preg_match('/[\W_]/', $value);
+            if ($length < 10) {
+                $this->errorMessage = 'Password must be at least 10 characters long.';
+                return false;
+            }
+
+            if (!preg_match('/[A-Z]/', $value)) {
+                $this->errorMessage = 'Password must contain at least one uppercase letter.';
+                return false;
+            }
+
+            if (!preg_match('/[a-z]/', $value)) {
+                $this->errorMessage = 'Password must contain at least one lowercase letter.';
+                return false;
+            }
+
+            if (!preg_match('/\d/', $value)) {
+                $this->errorMessage = 'Password must contain at least one number.';
+                return false;
+            }
+
+            if (!preg_match('/[\W_]/', $value)) {
+                $this->errorMessage = 'Password must contain at least one special character.';
+                return false;
+            }
+
+            return true;
         }
 
         return false;
@@ -43,7 +80,6 @@ class PasswordValidation implements Rule
 
     public function message()
     {
-        return "The :attribute does not meet {$this->level} password requirements.";
+        return $this->errorMessage ?: 'Invalid password.';
     }
-    
 }
