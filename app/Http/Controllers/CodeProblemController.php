@@ -34,9 +34,16 @@ class CodeProblemController extends Controller
             'difficulty' => 'required|in:Easy,Medium,Hard'
         ]);
 
+        $userId = Auth::id();
+
+        // kunin lahat ng problem IDs na nasagutan na ng user
+        $answeredProblemIds = ProblemAttempts::where('user_id', $userId)
+            ->pluck('code_problem_id');
+
         return CodeProblems::where('difficulty', $request->difficulty)
-            ->inRandomOrder()
-            ->limit(5)
+            ->whereNotIn('id', $answeredProblemIds)
+            // ->inRandomOrder()
+            ->limit(1)
             ->get();
     }
 

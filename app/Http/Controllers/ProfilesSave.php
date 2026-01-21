@@ -28,4 +28,20 @@ class ProfilesSave extends Controller
             'completedLevels' => $profile->completed_levels
         ]) : response()->json([]);
     }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'completedLevels' => 'required|array'
+        ]);
+
+        $progress = Profile::updateOrCreate(
+            ['user_id' => Auth::id()],
+            ['completed_levels' => $request->completedLevels]
+        );
+
+        return response()->json([
+            'message' => 'Progress saved',
+            'completedLevels' => $progress->completed_levels
+        ]);
+    }
 }

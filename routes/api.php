@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/code-problems/check-structure', [CodeProblemController::class, "checkCodeStructure"]);
-Route::post('/code-problems', [CodeProblemController::class, "getProblems"]);
 Route::post('/enemies', [EnemiesController::class, "getEnemies"]);
 Route::post('/register', [AuthControlle::class , 'register']); 
 Route::post('/login' ,[AuthControlle::class , 'login']); 
@@ -34,8 +33,10 @@ Route::middleware('auth:sanctum')->group(
         Route::get('/getInventory', [InventoryController::class, 'getInventory']);
         //profile
         Route::get('/LoadsaveProgress', [ProfilesSave::class, 'levelshowCompletedOnly']);
-       
+        Route::post('/update-level', [ProfilesSave::class, "store"]);
+        
         //code PRoblem
+        Route::post('/code-problems', [CodeProblemController::class, "getProblems"]);
         Route::post('/code-problems/check-blocks', [CodeProblemController::class, "checkSolution"]);
         Route::get('/code-problems/Profile', [CodeProblemController::class, "analyzePlayerStrengths"]);
         Route::get('/Profile', [CodeProblemController::class, "profile"]);
