@@ -31,18 +31,50 @@ class CodeProblemController extends Controller
     public function getProblems(Request $request)
     {
         $request->validate([
-            'difficulty' => 'required|in:Easy,Medium,Hard'
+            'difficulty' => 'required|in:Easy,Medium,Hard',
+            'stage' => 'required|in:Normal,Boss'
         ]);
 
         $userId = Auth::id();
 
-        // kunin lahat ng problem IDs na nasagutan na ng user
+        // lahat ng problem IDs na nasagutan na ng user
         $answeredProblemIds = ProblemAttempts::where('user_id', $userId)
             ->pluck('code_problem_id');
 
+        /**
+         * =========================
+         * BOSS STAGE WEAKNESS-BASED
+         * =========================
+         */
+        if ($request->stage === 'Boss') {
+
+            $analysis = $this->getStrengthWeaknessData($userId);
+            $weaknesses = $analysis['weaknesses'];
+
+            // fallback kung walang weakness data
+            if (empty($weaknesses)) {
+                return CodeProblems::where('difficulty', $request->difficulty)
+                    ->whereNotIn('id', $answeredProblemIds)
+                    ->inRandomOrder()
+                    ->limit(1)
+                    ->get();
+            }
+
+            return CodeProblems::where('difficulty', $request->difficulty)
+                ->whereIn('category', $weaknesses)
+                ->whereNotIn('id', $answeredProblemIds)
+                ->inRandomOrder()
+                ->limit(1)
+                ->get();
+        }
+
+        /**
+         * =========================
+         * NORMAL STAGE UNCHANGED
+         * =========================
+         */
         return CodeProblems::where('difficulty', $request->difficulty)
             ->whereNotIn('id', $answeredProblemIds)
-            // ->inRandomOrder()
             ->limit(1)
             ->get();
     }
