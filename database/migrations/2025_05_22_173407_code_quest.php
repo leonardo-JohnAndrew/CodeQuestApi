@@ -15,6 +15,7 @@ return new class extends Migration
             $table->enum('level',['Beginner', 'Intermmediate'])->default('Beginner');
           // $table->text('avatar_url')->nullable();
              $table->string('character_name')->nullable(); 
+             $table->jsom('completed_levels')->nullable(); //levels 
             $table->timestamps();
         });
 

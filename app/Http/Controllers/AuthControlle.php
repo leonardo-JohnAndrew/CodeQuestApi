@@ -54,7 +54,7 @@ class AuthControlle extends Controller
                 'code' => $code,
                 'expires_at' => $expire,
                 "created_at" => now(),
-                'password' => $request->password,
+                'password' =>  Hash::make($request->password),
                 "updated_at" => now(),
                 
             ]
@@ -98,7 +98,7 @@ class AuthControlle extends Controller
             if(!$user || !Hash:: check($request->password ,$user->password)){
                 return response()->json([
                    'message' => 'Provided Credential is incorrect'
-                ]); 
+                ], 401); 
                  
             }
 
@@ -120,7 +120,7 @@ class AuthControlle extends Controller
     public function sendMailVerification(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'code' => 'required|integer', 
             'character' => 'required',
             'username' => 'required', 
@@ -153,7 +153,7 @@ class AuthControlle extends Controller
                 ->first();
          $user =   User::create([
             'email' => $request->email,
-            'password' => bcrypt($record->password),
+            'password' => $record->password,
             'username' => $request->username,
             'email_verified_at' => now()
         ]);
@@ -162,7 +162,7 @@ class AuthControlle extends Controller
                   'user_id' =>  $user->id, 
                   'level' => "Beginner", 
                   'character_name' => $request->character, 
-
+                
             ]);
                 $token = $user->createToken('api-token')->plainTextToken;
                 DB::table('verification_code')->where('email', $request->email)->delete();
