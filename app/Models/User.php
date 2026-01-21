@@ -56,4 +56,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Inventory::class, "user_id");
     }
+    public function problem_attempts(){
+        return $this->hasMany(ProblemAttempts::class, "user_id");
+    }
 }

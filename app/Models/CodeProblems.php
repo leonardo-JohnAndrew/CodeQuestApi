@@ -21,4 +21,11 @@ class CodeProblems extends Model
         'solution_blocks' => 'array',
         'decoy_blocks' => 'array',
     ];
+
+    public function problem_attempts(){
+         return $this->belongsTo(ProblemAttempts::class ,'problem_id', 'id'); 
+    }
+    public function user(){
+         return $this->belongsTo(User::class ,'user_id', 'id'); 
+    }
 }
