@@ -310,10 +310,34 @@ private function getStrengthWeaknessData($userId)
     });
 
     return [
-        'strengths' => $categoryStats->filter(fn($s) => $s['success_rate'] >= 70)->keys()->values(),
-        'weaknesses' => $categoryStats->filter(fn($s) => $s['success_rate'] < 70)->keys()->values(),
-        'details' => $categoryStats
-    ];
+    'strengths' => $categoryStats
+        ->filter(fn($s) => $s['success_rate'] >= 70)
+        ->sortByDesc(fn($s) => $s['success_rate'])
+        ->keys()
+        ->take(3)
+        ->values(),
+
+    'weaknesses' => $categoryStats
+        ->filter(fn($s) => $s['success_rate'] < 70)
+        ->sortBy(fn($s) => $s['success_rate'])
+        ->keys()
+        ->take(3)
+        ->values(),
+
+    'details' => [
+        'top_strengths' => $categoryStats
+            ->filter(fn($s) => $s['success_rate'] >= 70)
+            ->sortByDesc(fn($s) => $s['success_rate'])
+            ->take(3),
+
+        'top_weaknesses' => $categoryStats
+            ->filter(fn($s) => $s['success_rate'] < 70)
+            ->sortBy(fn($s) => $s['success_rate'])
+            ->take(3),
+    ]
+];
+
+    
 }
 
   //all counts of the game and Give the number of win and loses base on the problemAttempts

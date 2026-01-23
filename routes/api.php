@@ -17,8 +17,13 @@ Route::post('/enemies', [EnemiesController::class, "getEnemies"]);
 Route::post('/register', [AuthControlle::class , 'register']); 
 Route::post('/login' ,[AuthControlle::class , 'login']); 
 Route::get('/powerups',[InventoryController::class, 'getPowerups']);
-Route::post('/send-mail', [AuthControlle::class, 'sendMailVerification']);
+Route::post('/send-mail', [AuthControlle::class, 'sendMailVerification']); 
 Route::post('/gemini', [GeminiController::class, 'ask']);
+
+//changePassword
+ Route::post('/changePassword',[AuthControlle::class, "changePassword"]); 
+ Route::post('/changePassword/sendMail', [AuthControlle::class , "SendCode"]); 
+ Route::post('/changePassword/VerifyCode', [AuthControlle::class , "CheckCode"]); 
 
 Route::middleware('auth:sanctum')->group(
     function () {
@@ -40,6 +45,9 @@ Route::middleware('auth:sanctum')->group(
         Route::post('/code-problems/check-blocks', [CodeProblemController::class, "checkSolution"]);
         Route::get('/code-problems/Profile', [CodeProblemController::class, "analyzePlayerStrengths"]);
         Route::get('/Profile', [CodeProblemController::class, "profile"]);
+
+
+        // userInfo 
 
     }
 );

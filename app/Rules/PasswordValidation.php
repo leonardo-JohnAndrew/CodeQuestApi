@@ -27,7 +27,7 @@ class PasswordValidation implements Rule
         }
 
         if ($this->level === 'medium') {
-            if ($length < 8) {
+            if ($length < 7) {
                 $this->errorMessage = 'Password must be at least 8 characters long.';
                 return false;
             }
@@ -47,7 +47,7 @@ class PasswordValidation implements Rule
 
         // STRONG
         if ($this->level === 'strong') {
-            if ($length < 10) {
+            if ($length < 8) {
                 $this->errorMessage = 'Password must be at least 10 characters long.';
                 return false;
             }
