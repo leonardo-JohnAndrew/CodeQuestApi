@@ -9,6 +9,7 @@ use App\Http\Controllers\PowerupController;
 use App\Http\Controllers\ProfilesSave;
 use App\Models\CodeProblems;
 use App\Models\Inventory;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,15 +28,15 @@ Route::post('/gemini', [GeminiController::class, 'ask']);
 
 Route::middleware('auth:sanctum')->group(
     function () {
-        Route::post("/facebook-login", [AuthControlle::class, "facebookLogin"]);
+        // Route::post("/facebook-login", [AuthControlle::class, "facebookLogin"]);
         
-        //powerups 
-        Route::get('/getPowerups', [PowerupController::class, "showAll"]); 
-        //inventory 
-        Route::post('/addInventory/{itemId}',[InventoryController::class , 'addInventory']); 
-        Route::post('/removeItem/{itemId}', [InventoryController::class, 'removeItem']);
-        Route::post('/updateItem/{itemId}', [InventoryController::class, 'updateItem']);
-        Route::get('/getInventory', [InventoryController::class, 'getInventory']);
+        // //powerups 
+        // Route::get('/getPowerups', [PowerupController::class, "showAll"]); 
+        // //inventory 
+        // Route::post('/addInventory/{itemId}',[InventoryController::class , 'addInventory']); 
+        // Route::post('/removeItem/{itemId}', [InventoryController::class, 'removeItem']);
+        // Route::post('/updateItem/{itemId}', [InventoryController::class, 'updateItem']);
+        // Route::get('/getInventory', [InventoryController::class, 'getInventory']);
         //profile
         Route::get('/LoadsaveProgress', [ProfilesSave::class, 'levelshowCompletedOnly']);
         Route::post('/update-level', [ProfilesSave::class, "store"]);
@@ -47,7 +48,8 @@ Route::middleware('auth:sanctum')->group(
         Route::get('/Profile', [CodeProblemController::class, "profile"]);
 
 
-        // userInfo 
+        // achievements 
+         Route::get('/achievements' , [ProfilesSave::class , "checkAchievements"]); 
 
     }
 );

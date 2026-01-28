@@ -44,4 +44,56 @@ class ProfilesSave extends Controller
             'completedLevels' => $progress->completed_levels
         ]);
     }
+
+     public function checkAchievements()
+{ 
+    $userId = Auth::user()->id; 
+    $profile = Profile::where('user_id', $userId)->first();
+
+    if (!$profile) {
+        return response()->json([
+            'message' => 'Profile not found'
+        ], 404);
+    }
+
+    $completedLevels = $profile->completed_levels ?? [];
+    $completedCount = count($completedLevels);
+
+    $easy = 0;
+    $intermediate = 0;
+    $hard = 0;
+    $complete = 0;
+
+    if ($completedCount > 7) {
+        $easy = 1;
+    }
+
+    if ($completedCount > 15) {
+        $intermediate = 1;
+    }
+
+    if ($completedCount > 23) {
+        $hard = 1;
+        $complete = 1;
+    }
+
+    $profile->update([
+        'easy_achievement' => $easy,
+        'intermediate_achievement' => $intermediate,
+        'hard_achievement' => $hard,
+        'complete_achievement' => $complete,
+    ]);
+
+    return response()->json([
+        'message' => 'Achievements updated',
+        'completed_levels_count' => $completedCount,
+        'achievements' => [
+            'easy' => $easy,
+            'intermediate' => $intermediate,
+            'hard' => $hard,
+            'complete' => $complete,
+        ]
+    ]);
+}
+
 }
